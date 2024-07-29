@@ -22,9 +22,19 @@ async function main() {
         console.log(`SimpleAccountImpl 배포 완료 ${deployedContract.target}`);
     }
 
+    const deployAccountProxy = async (scwOwner) => {
+        const simpleAccountContract = await ethers.getContractAt("SimpleAccount", SIMPLE_ACCOUNT_IMPL_ADDR);
+        const initializeCalldata = simpleAccountContract.interface.encodeFunctionData("initialize", [scwOwner]);
+
+        const deployedContract = await ethers.deployContract("AccountProxy", [SIMPLE_ACCOUNT_IMPL_ADDR, initializeCalldata]);
+        console.log("Deploying AccountProxy...");
+        await deployedContract.waitForDeployment();
+        console.log(`AccountProxy 배포 완료 ${deployedContract.target}`);
+    }
+
 
     // ---------------------- 실행 부분 -------------------------------------------
-    await deploySimpleAccountImpl();
+    await deployAccountProxy(wallets[0].address);
 }
 
 main().catch((error) => {
